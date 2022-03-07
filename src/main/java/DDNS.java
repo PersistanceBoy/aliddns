@@ -3,18 +3,11 @@ import com.aliyuncs.IAcsClient;
 import com.aliyuncs.alidns.model.v20150109.*;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
-import com.google.gson.Gson;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
+
 import java.net.SocketException;
-import java.net.URL;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class DDNS {
     public static final String host="ljailf520.top";

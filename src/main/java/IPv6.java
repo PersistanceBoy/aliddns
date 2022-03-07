@@ -120,7 +120,11 @@ public class IPv6 {
         String[] lines=line.split("=");
         String lessStr=lines[lines.length-1].split(" ")[0];
         try {
-            if(line.contains("Unreachable")){
+
+            if(line.contentEquals("Unreachable")){
+                return 0;
+            }
+            if(line.contentEquals("unreachable")){
                 return 0;
             }
             if(Double.valueOf(lessStr)>0){
