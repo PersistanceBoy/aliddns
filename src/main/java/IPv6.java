@@ -39,11 +39,11 @@ public class IPv6 {
 //            e.printStackTrace();
 //        }
 
-       Boolean l= ping("ljailf520.top", 3);
-       LogUtil.logOut(l);
+//       Boolean l= ping("ljailf520.top", 3);
+//       LogUtil.logOut(l);
 
        //getCheckResult("64 bytes from liujia-ThinkPad-T440s (2409:8a55:3039:68c0::960): icmp_seq=1 TTL=64 time=0.080 ms");
-      //  getCheckResult("16 bytes from 2409:8a55:3039:68c0::960, icmp_seq=13 hlim=55 time=129.993 ms");
+       getCheckResult("From 2409:8a55:303a:1270:48b8:44b3:903d:454a icmp_seq=3 Destination unreachable: Address unreachable");
 
 
     }
@@ -121,10 +121,10 @@ public class IPv6 {
         String lessStr=lines[lines.length-1].split(" ")[0];
         try {
 
-            if(line.contentEquals("Unreachable")){
+            if(line.contains("Unreachable")){
                 return 0;
             }
-            if(line.contentEquals("unreachable")){
+            if(line.contains("unreachable")){
                 return 0;
             }
             if(Double.valueOf(lessStr)>0){
