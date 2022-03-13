@@ -86,7 +86,7 @@ public class DDNS {
                 e.printStackTrace();
                 LogUtil.logOut(e);
             }finally {
-                Thread.sleep(1000 * 30);
+                Thread.sleep(1000 * 300);
             }
         }
     }
@@ -103,7 +103,7 @@ public class DDNS {
         List<DescribeSubDomainRecordsResponse.Record> domainRecords = describeSubDomainRecordsResponse.getDomainRecords();
         //最新的一条解析记录
         if (domainRecords.size() != 0) {
-            LogUtil.logOut("与记录不一致，尝试修改地址！");
+
             DescribeSubDomainRecordsResponse.Record record = domainRecords.get(0);
             //  记录ID
             String recordId = record.getRecordId();
@@ -113,6 +113,7 @@ public class DDNS {
             String currentHostIP = IPv6.getLocalIPv6Address();
             LogUtil.logOut("-------------------------------当前主机公网IP为：" + currentHostIP + "-------------------------------");
             if (!currentHostIP.equals(recordsValue)) {
+                LogUtil.logOut("与记录不一致，尝试修改地址！");
                 //  修改解析记录
                 UpdateDomainRecordRequest updateDomainRecordRequest = new UpdateDomainRecordRequest();
                 //  主机记录
