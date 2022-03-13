@@ -43,8 +43,8 @@ public class IPv6 {
 //       LogUtil.logOut(l);
 
        //getCheckResult("64 bytes from liujia-ThinkPad-T440s (2409:8a55:3039:68c0::960): icmp_seq=1 TTL=64 time=0.080 ms");
-       getCheckResult("From 2409:8a55:303a:1270:48b8:44b3:903d:454a icmp_seq=3 Destination unreachable: Address unreachable");
-
+      // getCheckResult("From 2409:8a55:303a:1270:48b8:44b3:903d:454a icmp_seq=3 Destination unreachable: Address unreachable");
+        getLocalIPv6Address();
 
     }
     public static String getLocalIPv6Address() throws SocketException {
@@ -72,6 +72,7 @@ public class IPv6 {
 
         return ipAddr;
     }
+
     private static boolean isReservedAddr(InetAddress inetAddr) {
         if(inetAddr.isAnyLocalAddress()||inetAddr.isLinkLocalAddress()||inetAddr.isLoopbackAddress())
         {
@@ -112,6 +113,8 @@ public class IPv6 {
             }
         }
     }
+
+
     /**
      * 若line含有=18ms TTL=16字样,说明已经ping通,返回1,否則返回0.
      */

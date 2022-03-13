@@ -68,19 +68,20 @@ public class DDNS {
 
         while (true) {
             try {
-                int i=0;
-                boolean flag=false;
-                while (i<3){
-                    i++;
-                    if(IPv6.ping(host,3)){
-                        flag=true;
-                        break;
-                    }
-                }
-                if(!flag){
-                    LogUtil.logOut("自测地址失败！！！尝试更新ipv6地址");
-                    ddnsOp(client);
-                }
+//                int i=0;
+//                boolean flag=false;
+//                while (i<3){
+//                    i++;
+//                    if(IPv6.ping(host,3)){
+//                        flag=true;
+//                        break;
+//                    }
+//                }
+//                if(!flag){
+//                    LogUtil.logOut("自测地址失败！！！尝试更新ipv6地址");
+//                    ddnsOp(client);
+//                }
+                ddnsOp(client);
             } catch (Exception e) {
                 e.printStackTrace();
                 LogUtil.logOut(e);
@@ -102,6 +103,7 @@ public class DDNS {
         List<DescribeSubDomainRecordsResponse.Record> domainRecords = describeSubDomainRecordsResponse.getDomainRecords();
         //最新的一条解析记录
         if (domainRecords.size() != 0) {
+            LogUtil.logOut("与记录不一致，尝试修改地址！");
             DescribeSubDomainRecordsResponse.Record record = domainRecords.get(0);
             //  记录ID
             String recordId = record.getRecordId();
