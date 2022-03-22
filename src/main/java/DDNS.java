@@ -5,16 +5,13 @@ import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
 
 
+import java.io.IOException;
 import java.net.SocketException;
 
 import java.util.List;
 
 public class DDNS {
-    public static final String host="ljailf520.top";
 
-    public static final String AccessKeyID="LTAI5tPPM4NfTogQjBhPqXL1";
-
-    public static final String AccessKeySecret="FhkD9BjJH91xTgxBksVZLiPEXutHkt";
     /**
      * 获取主域名的所有解析记录列表
      */
@@ -59,28 +56,15 @@ public class DDNS {
 
 
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, IOException {
+        Config.initConfig();
         //  设置鉴权参数，初始化客户端
         DefaultProfile profile = DefaultProfile.getProfile("cn-hangzhou",// 地域ID
-                AccessKeyID,// 您的AccessKey ID
-                AccessKeySecret);// 您的AccessKey Secret
+                Config.AccessKeyID,// 您的AccessKey ID
+                Config.AccessKeySecret);// 您的AccessKey Secret
         IAcsClient client = new DefaultAcsClient(profile);
-
         while (true) {
             try {
-//                int i=0;
-//                boolean flag=false;
-//                while (i<3){
-//                    i++;
-//                    if(IPv6.ping(host,3)){
-//                        flag=true;
-//                        break;
-//                    }
-//                }
-//                if(!flag){
-//                    LogUtil.logOut("自测地址失败！！！尝试更新ipv6地址");
-//                    ddnsOp(client);
-//                }
                 ddnsOp(client);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -96,7 +80,7 @@ public class DDNS {
 
         //查询指定二级域名的最新解析记录
         DescribeSubDomainRecordsRequest describeSubDomainRecordsRequest = new DescribeSubDomainRecordsRequest();
-        describeSubDomainRecordsRequest.setSubDomain(host);
+        describeSubDomainRecordsRequest.setSubDomain(Config.host);
         DescribeSubDomainRecordsResponse describeSubDomainRecordsResponse = ddns.describeSubDomainRecords(describeSubDomainRecordsRequest, client);
         LogUtil.log_print("describeSubDomainRecords", describeSubDomainRecordsResponse);
 
@@ -133,7 +117,7 @@ public class DDNS {
             String currentHostIP = IPv6.getLocalIPv6Address();
             LogUtil.logOut("-------------------------------当前主机公网IP为：" + currentHostIP + "-------------------------------");
             AddDomainRecordRequest addDomainRecordRequest=new AddDomainRecordRequest();
-            addDomainRecordRequest.setDomainName(host);
+            addDomainRecordRequest.setDomainName(Config.host);
             addDomainRecordRequest.setRR("@");
 
 //                    //  修改解析记录
