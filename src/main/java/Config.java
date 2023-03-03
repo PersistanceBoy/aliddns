@@ -46,7 +46,7 @@ public class Config {
     }
 
     public static void main(String[] args) throws IOException {
-        initConfig();
+        //initConfig();
         String path = Config.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         path = java.net.URLDecoder.decode(path, "UTF-8");
         System.out.println("方式1"+path);

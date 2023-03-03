@@ -1,12 +1,22 @@
 
 
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
-import java.util.Enumeration;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author liu
@@ -14,68 +24,87 @@ import java.util.regex.Pattern;
  * @description
  */
 public class IPv6 {
-    public static void main(String[] args) throws IOException {
-        /*获取本机所有ip地址(包括保留地址，ipv4,ipv6  如果安装了虚拟机会更多其他的地址)
-         * try {
-            InetAddress ads = null;
-            Enumeration<NetworkInterface>   adds = NetworkInterface.getNetworkInterfaces();
-            while(adds.hasMoreElements()) {
-            Enumeration<InetAddress> inetAds = adds.nextElement().getInetAddresses();
-                while(inetAds.hasMoreElements()) {
-                    ads = inetAds.nextElement();
-                    LogUtil.logOut(ads.getHostAddress());
+
+    private static final CopyOnWriteArrayList<String> ipv6s = new CopyOnWriteArrayList<>();
+
+    //随机数
+    static Random random = new Random();
+    static {
+        // 创建定时器任务
+        Executors.newScheduledThreadPool(2).scheduleWithFixedDelay(() -> refreshIps(),1,60,TimeUnit.SECONDS);
+    }
+
+
+
+    private static synchronized void refreshIps() {
+        LogUtil.logOut("开始刷新ip");
+        try {
+            List<String> getIpv6s = getLocalIPv6Address();
+            if (getIpv6s.isEmpty()) {
+                return;
+            }
+            List<String> temp=new ArrayList<>();
+            List<String> finalTemp = temp;
+            getIpv6s.forEach(ip -> {
+                try {
+                    if (pingTest(ip)) {
+                        finalTemp.add(ip);
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
+            });
+            ipv6s.clear();
+            temp= temp.stream().distinct().collect(Collectors.toList());
+            ipv6s.addAll(temp);
+            if (ipv6s.isEmpty()) {
+                ipv6s.addAll(getIpv6s);
             }
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }*/
-
-        //获取可用ipv6地址
-//        try {
-//            LogUtil.logOut(getLocalIPv6Address());
-//        } catch (SocketException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-
-//       Boolean l= ping("ljailf520.top", 3);
-//       LogUtil.logOut(l);
-
-       //getCheckResult("64 bytes from liujia-ThinkPad-T440s (2409:8a55:3039:68c0::960): icmp_seq=1 TTL=64 time=0.080 ms");
-      // getCheckResult("From 2409:8a55:303a:1270:48b8:44b3:903d:454a icmp_seq=3 Destination unreachable: Address unreachable");
-        getLocalIPv6Address();
-
+           e.printStackTrace();
+        }
+        LogUtil.logOut("结束刷新ip");
     }
-    public static String getLocalIPv6Address() throws SocketException {
-        InetAddress inetAddress =null;
 
+    public static String getNextId(){
+        if(ipv6s.isEmpty()){
+            refreshIps();
+        }
+        if(ipv6s.isEmpty()){
+            return "";
+        }
+        int i2 = random.nextInt(1000);
+        int flag=i2%ipv6s.size();
+        return ipv6s.get(flag);
+    }
+
+    public static List<String> getLocalIPv6Address() throws SocketException {
+        InetAddress inetAddress = null;
+        List<String> ipv6s = new ArrayList<>();
         Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-        outer:
-        while(networkInterfaces.hasMoreElements()) {
+        while (networkInterfaces.hasMoreElements()) {
             Enumeration<InetAddress> inetAds = networkInterfaces.nextElement().getInetAddresses();
-            while(inetAds.hasMoreElements()) {
+            while (inetAds.hasMoreElements()) {
                 inetAddress = inetAds.nextElement();
                 //检查此地址是否是IPv6地址以及是否是保留地址
-                if(inetAddress instanceof Inet6Address&& !isReservedAddr(inetAddress)) {
-                    break outer;
-
+                if (inetAddress instanceof Inet6Address && !isReservedAddr(inetAddress)) {
+                    String ipAddr = inetAddress.getHostAddress();
+                    //过滤网卡
+                    int index = ipAddr.indexOf('%');
+                    if (index > 0) {
+                        ipAddr = ipAddr.substring(0, index);
+                    }
+                    ipv6s.add(ipAddr);
                 }
             }
         }
-        String ipAddr = inetAddress.getHostAddress();
-        //过滤网卡
-        int index = ipAddr.indexOf('%');
-        if(index>0) {
-            ipAddr = ipAddr.substring(0, index);
-        }
-
-        return ipAddr;
+        LogUtil.log_print("ip数据",ipv6s);
+        return ipv6s;
     }
 
+
     private static boolean isReservedAddr(InetAddress inetAddr) {
-        if(inetAddr.isAnyLocalAddress()||inetAddr.isLinkLocalAddress()||inetAddr.isLoopbackAddress())
-        {
+        if (inetAddr.isAnyLocalAddress() || inetAddr.isLinkLocalAddress() || inetAddr.isLoopbackAddress()) {
             return true;
         }
         return false;
@@ -86,7 +115,7 @@ public class IPv6 {
         // 将要执行的ping命令,此命令是windows格式的命令
         Runtime r = Runtime.getRuntime();
         //String pingCommand = "ping " + ipAddress + " -n " + pingTimes    + " -w " + timeOut;
-        String pingCommand = "ping6 " + ipAddress +" -c " +pingTimes;
+        String pingCommand = "ping6 " + ipAddress + " -c " + pingTimes;
 
         try {   // 执行命令并获取输出
             LogUtil.logOut(pingCommand);
@@ -116,24 +145,42 @@ public class IPv6 {
 
 
     /**
+     * 用外网测试网站来测试https://ipw.cn/api/ping/ipv6
+     */
+    private static boolean pingTest(String ipaddr) {
+        String pingAddr = String.format("https://ipw.cn/api/ping/ipv6/%s/4/all", ipaddr);
+        String reStr = HttpURLConnectionUtil.doGet(pingAddr);
+        JSONObject json = JSONUtil.parseObj(reStr);
+        JSONArray jsonArray = json.getJSONArray("pingResultDetail");
+        for (Object jsonr : jsonArray) {
+            JSONObject jsonResult = (JSONObject) jsonr;
+            Boolean result = jsonResult.getBool("result");
+            if (result) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 若line含有=18ms TTL=16字样,说明已经ping通,返回1,否則返回0.
      */
     private static int getCheckResult(String line) {
-        LogUtil.logOut("控制台输出的结果为:"+line);
-        String[] lines=line.split("=");
-        String lessStr=lines[lines.length-1].split(" ")[0];
+        LogUtil.logOut("控制台输出的结果为:" + line);
+        String[] lines = line.split("=");
+        String lessStr = lines[lines.length - 1].split(" ")[0];
         try {
 
-            if(line.contains("Unreachable")){
+            if (line.contains("Unreachable")) {
                 return 0;
             }
-            if(line.contains("unreachable")){
+            if (line.contains("unreachable")) {
                 return 0;
             }
-            if(Double.valueOf(lessStr)>0){
+            if (Double.valueOf(lessStr) > 0) {
                 return 1;
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             return 0;
         }
         return 0;
