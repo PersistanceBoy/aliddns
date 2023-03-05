@@ -31,7 +31,7 @@ public class IPv6 {
     static Random random = new Random();
     static {
         // 创建定时器任务
-        Executors.newScheduledThreadPool(2).scheduleWithFixedDelay(() -> refreshIps(),1,60,TimeUnit.SECONDS);
+        Executors.newScheduledThreadPool(1).scheduleWithFixedDelay(() -> refreshIps(),1,60,TimeUnit.SECONDS);
     }
 
 

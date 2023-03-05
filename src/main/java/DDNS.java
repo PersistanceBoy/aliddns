@@ -69,7 +69,7 @@ public class DDNS {
         IAcsClient client = new DefaultAcsClient(profile);
 
         // 创建定时器任务
-        Executors.newScheduledThreadPool(2).scheduleWithFixedDelay(() -> {
+        Executors.newScheduledThreadPool(1).scheduleWithFixedDelay(() -> {
             try {
                 ddnsOp(client);
             } catch (Exception e) {
