@@ -26,7 +26,7 @@ start(){
     echo "${APP_NAME} is already running. pid=${pid} ."
   else
     #启动时设置并发垃圾收集器
-    nohup java -Xms64m -Xmx64m -XX:MetaspaceSize=16m -XX:MaxMetaspaceSize=32m -cp  ./target/$APP_NAME DDNS > /dev/null &
+    nohup java -Xms64m -Xmx64m -XX:MetaspaceSize=16m -XX:MaxMetaspaceSize=32m -cp  $APP_NAME DDNS > log.file 2>&1 &
     echo "${APP_NAME} start success"
   fi
 }
