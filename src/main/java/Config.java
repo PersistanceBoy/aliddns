@@ -3,6 +3,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
 
@@ -21,8 +22,13 @@ public class Config {
             LogUtil.logOut("AccessKeySecret:"+AccessKeySecret);
             return;
         }
-        String jarPath= System.getProperty("user.dir");
-        System.out.println(jarPath);
+
+        String jarPath = System.getProperty("java.class.path");
+        int firstIndex = jarPath.lastIndexOf(System.getProperty("path.separator")) + 1;
+        int lastIndex = jarPath.lastIndexOf(File.separator) + 1;
+        jarPath = jarPath.substring(firstIndex, lastIndex);
+
+        LogUtil.logOut("jarPath:::"+jarPath);
         File file=new File(jarPath+File.separator+"config.json");
 
         if(!file.exists()){
@@ -49,14 +55,16 @@ public class Config {
         //initConfig();
         String path = Config.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         path = java.net.URLDecoder.decode(path, "UTF-8");
-        System.out.println("方式1"+path);
 
+        LogUtil.logOut("方式1"+path);
         String path1 = System.getProperty("java.class.path");
         int firstIndex = path1.lastIndexOf(System.getProperty("path.separator")) + 1;
         int lastIndex = path1.lastIndexOf(File.separator) + 1;
         path1 = path1.substring(firstIndex, lastIndex);
-        System.out.println("方式2"+path1);
+        LogUtil.logOut("方式1"+path1);
 
-        System.out.println("方式3"+System.getProperty("user.dir"));
+        LogUtil.logOut("方式3"+System.getProperty("user.dir"));
     }
+
+
 }
