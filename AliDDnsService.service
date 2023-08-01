@@ -1,0 +1,12 @@
+[Unit]
+Description=AliDDndService
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/home/hnoainfonanfa/桌面/aliDDNS/aliDDns.sh start log
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+

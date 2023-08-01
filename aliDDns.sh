@@ -1,6 +1,11 @@
 #!/bin/bash
 
-APP_NAME=aliDDns-1.0-SNAPSHOT.jar
+
+# 获取当前脚本所在的工作目录
+SCRIPT_PATH=$(cd $(dirname $0) && pwd)
+
+APP_NAME=$SCRIPT_PATH/aliDDns-1.0-SNAPSHOT.jar
+Out_log=$2
 
 #使用说明，用来提示输入参数
 usage() {
@@ -25,9 +30,19 @@ start(){
   if [ $? -eq "0" ]; then
     echo "${APP_NAME} is already running. pid=${pid} ."
   else
+    echo $Out_log
+    if [ "$Out_log" == "log" ]; then
     #启动时设置并发垃圾收集器
-    nohup java -Xms64m -Xmx64m -XX:MetaspaceSize=16m -XX:MaxMetaspaceSize=32m -cp  $APP_NAME DDNS > log.file 2>&1 &
-    echo "${APP_NAME} start success"
+      nohup java -Xms64m -Xmx64m -XX:MetaspaceSize=16m -XX:MaxMetaspaceSize=32m -cp  $APP_NAME DDNS >> $SCRIPT_PATH/output.log 2>&1 &
+      echo "${APP_NAME} log  start success"
+      # 在子进程启动后，父进程退出，实现Type=forking的效果
+      exit 0
+    else
+      nohup java -Xms64m -Xmx64m -XX:MetaspaceSize=16m -XX:MaxMetaspaceSize=32m -cp  $APP_NAME DDNS > /dev/null &
+      echo "${APP_NAME} start success"
+      # 在子进程启动后，父进程退出，实现Type=forking的效果
+      exit 0
+    fi
   fi
 }
 
