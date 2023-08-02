@@ -125,7 +125,7 @@ public class DDNS {
             }
 
         } else {
-
+            LogUtil.logOut("DDNS无该域名解析信息");
             //  当前主机公网IP
             String currentHostIP = IPv6.getNextId();
             //  当前主机公网IP
