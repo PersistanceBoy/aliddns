@@ -4,8 +4,6 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,7 +22,6 @@ import java.util.stream.Collectors;
  */
 public class IPv6 {
 
-    static Logger log = LoggerFactory.getLogger(IPv6.class);
     private static final CopyOnWriteArrayList<String> ipv6s = new CopyOnWriteArrayList<>();
 
     //随机数
@@ -37,7 +34,7 @@ public class IPv6 {
 
 
     private static synchronized void refreshIps() {
-        log.info("开始刷新ip");
+        LogUtil.logOut("开始刷新ip");
         try {
             List<String> getIpv6s = getLocalIPv6Address();
             if (getIpv6s.isEmpty()) {
@@ -51,7 +48,7 @@ public class IPv6 {
                         finalTemp.add(ip);
                     }
                 }catch (Exception e){
-                    log.error("pingTest 异常",e);
+                    e.printStackTrace();
                 }
             });
             ipv6s.clear();
@@ -61,9 +58,9 @@ public class IPv6 {
                 ipv6s.addAll(getIpv6s);
             }
         } catch (Exception e) {
-            log.error("refreshIps 异常",e);
+           e.printStackTrace();
         }
-        log.info("结束刷新ip");
+        LogUtil.logOut("结束刷新ip");
     }
 
     public static String getNextId(){
@@ -98,7 +95,7 @@ public class IPv6 {
                 }
             }
         }
-        log.info("ip数据{}",ipv6s);
+        LogUtil.log_print("ip数据",ipv6s);
         return ipv6s;
     }
 
@@ -118,7 +115,7 @@ public class IPv6 {
         String pingCommand = "ping6 " + ipAddress + " -c " + pingTimes;
 
         try {   // 执行命令并获取输出
-            log.info(pingCommand);
+            LogUtil.logOut(pingCommand);
             Process p = r.exec(pingCommand);
             if (p == null) {
                 return false;
@@ -173,7 +170,7 @@ public class IPv6 {
      * 若line含有=18ms TTL=16字样,说明已经ping通,返回1,否則返回0.
      */
     private static int getCheckResult(String line) {
-        log.info("控制台输出的结果为:" + line);
+        LogUtil.logOut("控制台输出的结果为:" + line);
         String[] lines = line.split("=");
         String lessStr = lines[lines.length - 1].split(" ")[0];
         try {
