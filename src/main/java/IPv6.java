@@ -1,4 +1,5 @@
 
+import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
@@ -148,7 +149,11 @@ public class IPv6 {
      */
     private static boolean pingTest(String ipaddr) {
         String pingAddr = String.format("https://ipw.cn/api/ping/ipv6/%s/4/all", ipaddr);
-        String reStr=HttpUtil.get(pingAddr);
+        HttpRequest httpRequest=HttpUtil.createGet(pingAddr);
+        httpRequest.setReadTimeout(5000);
+        httpRequest.setConnectionTimeout(5000);
+
+        String reStr=httpRequest.execute().body();
         JSONObject json = JSONUtil.parseObj(reStr);
         JSONArray jsonArray = json.getJSONArray("pingResultDetail");
         for (Object jsonr : jsonArray) {
@@ -162,7 +167,7 @@ public class IPv6 {
     }
 
     public static void main(String[] args) {
-        pingTest("sdfs");
+        pingTest("2409:8a55:301a:4e0:2d84:83c3:edb2:5c4c");
     }
     /**
      * 若line含有=18ms TTL=16字样,说明已经ping通,返回1,否則返回0.
